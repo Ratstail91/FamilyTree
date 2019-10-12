@@ -15,7 +15,18 @@ public class Line : MonoBehaviour {
 	public Line parentLine;
 	public Node[] children; //array for twins, etc.
 
-	//internals
+	//general
+	public Vector3[] points; //TODO: private
 
-	//
+	//internals
+	LineRenderer lineRenderer;
+
+	void Awake() {
+		lineRenderer = GetComponent<LineRenderer>();
+	}
+
+	void Update() {
+		lineRenderer.SetPositions(points);
+		lineRenderer.positionCount = points.Length;
+	}
 }
