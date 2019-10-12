@@ -3,27 +3,20 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class LineManager : MonoBehaviour {
+	//camera
+	[SerializeField]
+	Camera cam = null;
+
 	//line drawing utility
 	[SerializeField]
 	Texture lineTexture = null;
 
+	[SerializeField]
+	Node[] nodeArray = null;
+
 	void OnGUI() {
-		DrawLine(new Vector2(50, 50), new Vector2(100, 100), 5);
-
-		DrawLine(new Vector2(100, 100), new Vector2(500, 500), 5);
-	}
-
-	void OnDrawGizmos() {
-		Gizmos.color = Color.red;
-
-		Vector3 offset = new Vector3(-10, 5, 0);
-
-		for (int i = 0; i < 10; i++) {
-			Gizmos.DrawLine(new Vector3(i, 0, 0) + offset, new Vector3(i, -10, 0) + offset);
-		}
-
-		for (int j = 0; j < 10; j++) {
-			Gizmos.DrawLine(new Vector3(0, -j, 0) + offset, new Vector3(10, -j, 0) + offset);
+		for (int i = 1; i < nodeArray.Length; i++) {
+			DrawLine(WorldToGUIPoint(nodeArray[i-1].transform.position), WorldToGUIPoint(nodeArray[i].transform.position), 2);
 		}
 	}
 
@@ -32,15 +25,12 @@ public class LineManager : MonoBehaviour {
 		Vector2 midPoint = new Vector2((first.x + second.x) / 2, (first.y + second.y) / 2);
 		float halfLength = (second - first).magnitude / 2;
 
-		float angle = ((second.x - first.x) / (second - first).magnitude) * (180 / Mathf.PI);
+		//O = Asin (o / (h / sin(H)) )
+//		float angle = 90 - Mathf.Asin((second.x - first.x) / ( ((second-first).magnitude) / Mathf.Sin(90*Mathf.Deg2Rad)) ) * Mathf.Rad2Deg;
+		float angle = Mathf.Atan2(second.y-first.y, second.x-first.x) * Mathf.Rad2Deg;
 
 		//draw the line
-		Rect rect = new Rect(midPoint.x - halfLength, midPoint.y - 5, halfLength * 2, width);
-
-		Debug.Log(midPoint);
-		Debug.Log(halfLength);
-		Debug.Log(angle);
-		Debug.Log(rect);
+		Rect rect = new Rect(midPoint.x - halfLength, midPoint.y - width / 2, halfLength * 2, width);
 
 		GUI.BeginGroup(new Rect(0, 0, Screen.width, Screen.height));
 
@@ -49,5 +39,11 @@ public class LineManager : MonoBehaviour {
 		GUIUtility.RotateAroundPivot(-angle, midPoint);
 
 		GUI.EndGroup();
+	}
+
+	public Vector3 WorldToGUIPoint(Vector3 position) {
+		var guiPosition = cam.WorldToScreenPoint(position);
+		guiPosition.y = Screen.height - guiPosition.y;
+		return guiPosition;
 	}
 }
